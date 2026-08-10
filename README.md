@@ -1,8 +1,11 @@
-# 🛡️ Nirapod Dhaka (নিরাপদ ঢাকা)
+<div align="center">
 
-> **Next-Generation Community-Driven Civic Safety, Hazard Reporting, and Emergency Response Platform for Dhaka City.**
+# 🏆 Nirapod Dhaka (নিরাপদ ঢাকা)
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-nirapoddhk.vercel.app-0E9C8C?style=for-the-badge&logo=vercel&logoColor=white)](https://nirapoddhk.vercel.app)
+### 🥇 **HACKATHON CHAMPION — 1ST PLACE WINNING PROJECT** 🥇
+
+[![Hackathon Champion](https://img.shields.io/badge/🏆_CHAMPION-1ST_PLACE_WINNER-FFD700?style=for-the-badge&labelColor=000000&logo=trophy&logoColor=FFD700)](#-hackathon-victory--recognition)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-nirapoddhk.vercel.app-0E9C8C?style=for-the-badge&logo=vercel&logoColor=white)](https://nirapoddhk.vercel.app)
 [![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript_5.8-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
@@ -11,17 +14,27 @@
 [![Groq AI](https://img.shields.io/badge/Groq_AI-F05A28?style=for-the-badge&logo=fastapi&logoColor=white)](https://groq.com/)
 [![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
 
+<br/>
+
+> **"An award-winning civic safety and emergency response ecosystem engineered to empower 20+ million citizens of Dhaka with real-time hazard reporting, AI-powered safe routing, instant emergency SOS dispatch, and automated multi-agency governance."**
+
+<br/>
+
+**🔗 Live App**: [**https://nirapoddhk.vercel.app**](https://nirapoddhk.vercel.app) &nbsp;|&nbsp; **🌐 Domain**: `nirapoddhk.vercel.app`
+
+</div>
+
 ---
 
-## 🌐 Live Application
-
-- **Live URL**: [https://nirapoddhk.vercel.app](https://nirapoddhk.vercel.app)
-- **Domain**: `nirapoddhk.vercel.app`
+> [!IMPORTANT]
+> ### 🏆 Hackathon Victory & Recognition
+> **Nirapod Dhaka emerged as the Champion (1st Place Winner)** in the hackathon competition! Recognized by the judges and community for its real-world impact, technical excellence, robust multi-agency auto-triage architecture, and intuitive accessibility for everyday commuters across Bangladesh.
 
 ---
 
 ## 📖 Table of Contents
 
+- [🏆 Hackathon Victory & Recognition](#-hackathon-victory--recognition)
 - [Overview & Mission](#-overview--mission)
 - [Key Features](#-key-features)
 - [Authority Dashboards & Demo Credentials](#-authority-dashboards--demo-credentials)
@@ -35,6 +48,19 @@
 - [Deployment](#-deployment)
 - [Accessibility & Design Philosophy](#-accessibility--design-philosophy)
 - [Contributing & License](#-contributing--license)
+
+---
+
+## 🏆 Hackathon Victory & Recognition
+
+> **Nirapod Dhaka was built as a full-stack working MVP during the Hackathon and was crowned the 1st Place Champion! 🥇**
+
+### 🌟 What Made Nirapod Dhaka the Winning Solution:
+- 💡 **Real-World Civic Impact**: Directly tackles urgent daily hazards in Dhaka — open manholes, damaged drainage, dark crime-prone alleys, waterlogging, and traffic emergencies.
+- ⚡ **Automated Multi-Agency Triaging**: Eliminates manual bureaucratic bottlenecks by routing reports directly to the specific authority (**Bangladesh Police**, **Disaster Management Bureau**, or **Dhaka City Corporation**) based on incident classification.
+- 🧠 **AI-Powered Safe Routing**: Integrates Groq LLMs with OpenStreetMap (OSRM) candidate routes and active hazard database scoring to compute the safest walking/driving paths avoiding active crime hotspots.
+- 🆘 **Zero-Friction Emergency Tools**: Includes a one-tap live GPS SOS broadcaster and a no-login public lost-phone tracker.
+- ♿ **Community & Mobile-First Accessibility**: Light-mode civic aesthetic, bilingual English/বাংলা support, and thumb-friendly tap targets for rapid single-handed reporting on the go.
 
 ---
 
