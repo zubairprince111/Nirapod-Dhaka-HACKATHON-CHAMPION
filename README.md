@@ -1,149 +1,330 @@
-# Nirapod Dhaka
+# 🛡️ Nirapod Dhaka (নিরাপদ ঢাকা)
 
-Nirapod Dhaka is a community-driven public safety and hazard-reporting platform for Bangladesh.
-Build a full-stack, mobile-first web app called [App Name] — a community-driven public safety and hazard-reporting platform for Bangladesh. Citizens report crime hotspots, infrastructure hazards (open manholes, damaged drains, broken roads), and accidents on a live interactive map, tagged with GPS and photo proof. Reports route automatically to the correct authority — City Corporation, Disaster Management Board, or Police — with no confirmation step needed from the user. Citizens track their own reports from Sent to Received to Resolved. The app also includes a one-tap Emergency SOS and a no-login "lost phone" locator.
+> **Next-Generation Community-Driven Civic Safety, Hazard Reporting, and Emergency Response Platform for Dhaka City.**
 
-Primary users are everyday commuters — including many older and low-literacy users — plus three authority roles (Police, Disaster Management Board, City Corporation) who each get their own dashboard. Tone throughout: calm, official clarity. This is a civic safety tool, not a consumer social app — never alarmist, never playful for its own sake. Urgency should come from clear visual hierarchy and color, not noisy language.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-nirapoddhk.vercel.app-0E9C8C?style=for-the-badge&logo=vercel&logoColor=white)](https://nirapoddhk.vercel.app)
+[![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript_5.8-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Groq AI](https://img.shields.io/badge/Groq_AI-F05A28?style=for-the-badge&logo=fastapi&logoColor=white)](https://groq.com/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
 
-Design system
+---
+
+## 🌐 Live Application
 
-Light mode only, everywhere — no dark backgrounds or navy anywhere, including on the three authority dashboards.
-
-Background: a cool, slightly gray-toned off-white (#F4F6F5) — not stark white, not warm cream.
-
-Body text / ink: near-black charcoal (#1A1D1E), not pure black.
-
-Primary accent (trust, primary buttons, links): deep teal (#0E9C8C).
-
-Danger/urgent accent (hazard pins, SOS, urgent badges): deep coral-red (#E23350).
-
-Pending/in-progress accent: amber (#E8A33D).
-
-Resolved/positive accent: clear green (#2E9E5B).
-
-Headings: Space Grotesk, bold, slightly wide tracking, for a confident and technical feel.
-
-Body text: Inter.
-
-For Bangla-language text specifically, pair both with a Bengali-script font such as Hind Siliguri or Noto Sans Bengali — Space Grotesk and Inter have no Bengali glyphs.
-
-Cards: white fill, soft shadow or thin border, with a colored left-edge accent bar showing category (red = crime, amber = infrastructure, teal = accident).
-
-Status shown as pill badges: a pale tint of the color as background, with a deeper shade of the same color as the text.
-
-Large, thumb-friendly tap targets everywhere (44px minimum) — many users are older or reporting one-handed while walking.
-
-Icon-led navigation: every primary action gets its own distinct icon plus a text label, never text alone, so low-literacy users can navigate by shape and color.
-
-Tech & data foundations
-
-Frontend: React + Tailwind + shadcn/ui, fully responsive, mobile-first.
-
-Backend: Supabase for authentication, database, and photo storage.
-
-Map: Leaflet.js with OpenStreetMap tiles (no paid API key required), plus the Leaflet.markercluster plugin so nearby pins collapse into a numbered cluster badge at low zoom and separate into individual pins on zoom-in.
-
-Auth: email + password to start, so login works immediately with no extra setup. Structure the profiles table with a phone field so phone-based OTP login can be added later without a schema change.
-
-Roles: one profiles table with a role column (citizen, police, dmb, city_corp). After login, route each role straight to its own dashboard.
-
-Tables to create:
-
-profiles: id, full_name, phone, role, emergency_contact_name, emergency_contact_phone
-
-reports: id, reporter_id, type (crime | infrastructure | accident), subtype (manhole, drain, road, snatching, robbery, etc.), photo_url, description, lat, lng, status (sent | received | resolved), created_at
-
-report_votes: id, report_id, user_id, vote (confirm | dispute)
-
-sos_alerts: id, user_id, lat, lng, status, created_at, nearest_station_id
-
-police_stations (seed data): id, name, lat, lng
-
-hospitals (seed data): id, name, lat, lng, beds_available, icu_available — seed with a few real Dhaka hospitals (e.g. Square Hospital, Dhaka Medical College Hospital, United Hospital) and mock counts
-
-Auto-flag a hotspot when three or more crime reports land within a small radius within 48 hours
-
-Pages & flows
-
-1. Landing page
-
-Full-bleed hero with a live-feeling animated map preview — pins dropping in with a soft pulse, a translucent red-orange wash over one hotzone — before any heavy text loads. Below it: three entry points — "Log in," "Create account," and a quieter "Browse the map" that lets a visitor view (not submit or vote on) reports without an account. Include small trust mentions for City Corporation, Disaster Management Board, and Police. A short three-icon strip beneath explains the core loop: view hazards → report one → emergency SOS. Also link, in the footer, to a separate "Find a lost phone" page that needs no login (see section 7).
-
-2. Sign up / log in
-
-Email + password form. Collect full name and one emergency contact (name + phone) at sign-up, since that powers the SOS flow. A visible language toggle (Bangla / English) sits in the header on every screen, defaulting to Bangla.
-
-3. Main map (citizen home)
-
-After login, land directly on a full-screen Leaflet map — no dashboard screen first. Pins are shaped and colored by category (crime = red, infrastructure = amber, accident = teal), with a subtle pulse on anything reported in the last hour. Floating filter chips over the map ("All," "Crime," "Infrastructure," "Resolved") toggle visibility. A translucent red-orange overlay shades hotzone areas. Tapping a single pin opens a bottom sheet (never a separate page) with photo, description, timestamp, a status pill, and confirm/dispute buttons with live counts. A floating "+" button starts the report flow. A separate, fixed, high-contrast SOS button stays in a thumb-reachable corner regardless of zoom or scroll.
-
-4. Report a hazard
-
-Tapping "+" drops a draggable pin at the user's current GPS location by default. The user picks a type (Crime, Infrastructure, Accident), adds a photo, and writes a short description. On submit, route automatically with no confirmation step: infrastructure reports go to both City Corporation and Disaster Management Board; crime reports go to City Corporation and Police; accident reports go to the flow in section 5. Show a brief "Report sent" toast and return to the map with the new pin visible.
-
-5. Accident + ambulance
-
-When the type is "Accident," after submission show a panel led by two large actions — "Call nearest ambulance" and a short list of nearby hospitals. Each hospital row shows name, distance, and a simple traffic-light dot for bed availability and ICU availability (green = available, red = full), rather than raw numbers, so it reads instantly under stress.
-
-6. Emergency SOS
-
-The persistent SOS button opens a full-screen confirmation ("Send SOS with your live location?") to prevent accidental triggers, then shares live location with the nearest police station (nearest by straight-line distance against the seeded police_stations table) and alerts the user's listed emergency contact in-app. Show a live status screen ("Police station notified · your contact has been alerted") with location still visibly updating.
-
-7. Lost device finder
-
-Lives outside the logged-in app, linked from the landing page as "Find a lost phone," reachable without an account — the use case is someone using a stranger's borrowed phone. One screen only: enter the phone number tied to the lost device, generate a unique link, and show it ready to copy/share. For this build, simulate the "send via SMS/WhatsApp" step with a simple shareable link rather than wiring real telecom APIs. Opening that link (e.g. in a second browser tab, to simulate the emergency contact's view) shows the device's last-known location on a small map, pulled from the browser's Geolocation API.
-
-8. Profile & my reports
-
-A profile page listing the user's own submitted reports, each with the Sent → Received → Resolved tracker and its confirmed/disputed vote counts. Include emergency contact management (edit name/phone) here too.
-
-9. Authority dashboards
-
-Three dashboard views, shown based on the logged-in user's role — all in the same light design system, no exceptions:
-
-Police: active SOS alerts at the top (with live location links), a crime reports feed, and auto-flagged hotspots. Actions: Mark received, Resolve, View on map.
-
-Disaster Management Board: infrastructure reports only (manhole, drain, road), each with photo, GPS, description, and upvote count. Actions: Mark received, Resolve — status changes must update the citizen's own tracker automatically.
-
-City Corporation: full admin view combining every stream (police, DMB, accidents), with the ability to override any status, plus a simple analytics summary (total open, active SOS, resolved this month).
-
-Accessibility requirements
-
-Bangla as the default language everywhere, with a one-tap toggle to English.
-
-Every icon paired with a text label; never use color alone to signal severity — pair it with a distinct icon shape too.
-
-A settings screen with text-size and high-contrast toggles.
-
-Images and map tiles load progressively rather than all at once, to stay usable on slower connections.
-
-Build order
-
-Design system + landing page
-
-Auth (sign up/login) + profiles table
-
-Main map with Leaflet + clustering + a few seeded sample reports
-
-Report creation flow + bottom sheet detail/voting
-
-Accident/ambulance panel + SOS flow
-
-Lost device finder (standalone flow)
-
-Profile & my reports page
-
-Three authority dashboards + role-based routing
-
-Ask me any clarifying questions you need before building each section, and use realistic Bangladeshi place names and sample data throughout rather than placeholder or lorem ipsum content.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+- **Live URL**: [https://nirapoddhk.vercel.app](https://nirapoddhk.vercel.app)
+- **Domain**: `nirapoddhk.vercel.app`
+
+---
+
+## 📖 Table of Contents
+
+- [Overview & Mission](#-overview--mission)
+- [Key Features](#-key-features)
+- [Authority Dashboards & Demo Credentials](#-authority-dashboards--demo-credentials)
+- [Architecture & Data Flow](#-architecture--data-flow)
+- [Technology Stack](#-technology-stack)
+- [Database Schema](#-database-schema)
+- [AI Safe Routing & Chatbot Engine](#-ai-safe-routing--chatbot-engine)
+- [Getting Started & Local Development](#-getting-started--local-development)
+- [Environment Configuration](#-environment-configuration)
+- [Project Directory Structure](#-project-directory-structure)
+- [Deployment](#-deployment)
+- [Accessibility & Design Philosophy](#-accessibility--design-philosophy)
+- [Contributing & License](#-contributing--license)
+
+---
+
+## 🎯 Overview & Mission
+
+**Nirapod Dhaka** is a full-stack, mobile-first civic safety and emergency response web application engineered specifically for the urban challenges of Dhaka, Bangladesh.
+
+Everyday commuters and citizens can report safety hazards (broken roads, open manholes, waterlogging, illegal dumping), crime occurrences (snatching, harassment, theft), and traffic accidents on an interactive, real-time map with GPS coordinates and photo evidence. Reports are automatically triaged and dispatched without bureaucratic friction to the respective municipal and law-enforcement authorities: **Bangladesh Police**, **Disaster Management Bureau (DMB)**, and **Dhaka City Corporation**.
+
+---
+
+## ✨ Key Features
+
+### 1. 🗺️ Interactive Live Hazard & Hotspot Map
+- **Dynamic Leaflet & OSM Integration**: Fast map rendering with custom color-coded category markers (Red for Crime, Amber for Infrastructure, Teal for Accidents).
+- **Marker Clustering**: Automatically groups dense regional reports into numbered cluster bubbles for smooth zoom navigation.
+- **Crime & Hazard Hotzones**: Automated heatmap overlays highlighting zones with high frequencies of incident reports within 48-hour windows.
+- **Recent Pulse Effect**: Visual pulsing animations on newly submitted reports (within the last hour) to convey live situational awareness.
+
+### 2. 🚨 Instant Citizen Reporting with Auto-Routing
+- **Draggable GPS Pin Locator**: Pinpoint exact location coordinates automatically using browser Geolocation API or manual map pin dragging.
+- **Photo Evidence Upload**: Integrated Supabase Storage bucket for verifiable visual proof.
+- **Zero-Friction Auto-Triage**:
+  - *Infrastructure hazards* (manhole, road defect, waterlogging) $\rightarrow$ Dispatched to **City Corporation** & **DMB**.
+  - *Crime & safety incidents* (mugging, harassment, eve-teasing) $\rightarrow$ Dispatched to **Bangladesh Police** & **City Corporation**.
+  - *Traffic Accidents* $\rightarrow$ Triggers the emergency medical and hospital dispatch workflow.
+
+### 3. 🆘 One-Tap Emergency SOS System
+- **Quick-Access Persistent Trigger**: Thumb-accessible floating SOS trigger available across all views.
+- **Accidental Trigger Prevention**: Confirmation modal with live GPS coordinates broadcast.
+- **Immediate Authority & Contact Dispatch**: Automatically calculates and alerts the nearest police station (using PostGIS/spatial distance) and notifies designated in-app emergency contacts.
+
+### 4. 📱 Zero-Login "Lost Phone" Geolocation Finder
+- Accessible publicly from the landing page without requiring account login (ideal for users borrowing a stranger's phone).
+- Generates a unique, secure trackable link mapped to the device's phone number.
+- Allows real-time geolocation view of the device on an emergency tracking map.
+
+### 5. 🚑 Emergency Medical & Hospital Bed Tracker
+- When an accident is logged or emergency assistance is requested, the system displays the nearest hospitals (e.g., Dhaka Medical College Hospital, Square Hospital, United Hospital).
+- Visual status indicators for **general bed availability** and **ICU availability** (Green = Available, Red = Full) for rapid decision-making under stress.
+- One-tap quick emergency calling.
+
+### 6. 🤖 AI Safe Route Navigator & Civic Chatbot (Groq LLM + OSRM)
+- **Safe Route Planning**: Custom routing algorithm that queries OpenStreetMap (OSRM) candidate paths and penalizes routes passing near reported crime hotspots or hazardous infrastructure.
+- **Civic Safety Assistant**: Conversational AI powered by Groq (Llama-3 / Mixtral) to answer municipal safety queries, emergency protocols, and route safety assessments.
+
+### 7. 👥 Community Verification & Voting
+- Prevents spam and false reporting through community upvoting (`confirm`) and dispute voting (`dispute`).
+- Real-time vote tallies displayed directly inside the report bottom-sheet.
+
+---
+
+## 🏛️ Authority Dashboards & Demo Credentials
+
+Each authority role is directed to a specialized operations dashboard upon authentication:
+
+| Role | Target Entity | Primary Capabilities | Demo Login | Demo Password |
+| :--- | :--- | :--- | :--- | :--- |
+| **Police** | 👮 Bangladesh Police HQ | Live SOS alert feeds, crime hotzones, dispatch management, status resolution | `police@nirapod.com` | `police1234` |
+| **DMB** | 🏗️ Disaster Management Bureau | Infrastructure incidents (open manholes, damaged drains, floods), severity filters | `disaster@nirapod.com` | `disaster1234` |
+| **City Corporation** | 🏛️ Dhaka City Corporation Admin | Comprehensive city overview, cross-agency oversight, analytics charts, status override | `city@nirapod.com` | `city1234` |
+| **Citizen** | 👤 Everyday Commuter | Incident reporting, live map navigation, personal report tracker, SOS, lost phone finder | Register with any email | User Defined |
+
+---
+
+## 🏗️ Architecture & Data Flow
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client (React 19 + TanStack + Vite)"]
+        Landing["Landing Page"]
+        MainMap["Live Leaflet Map & Clusters"]
+        ReportForm["Incident Report Modal"]
+        SOS["Emergency SOS Module"]
+        LostPhone["Lost Device Finder"]
+        AIChat["AI Route & Civic Assistant"]
+        AuthDash["Role Dashboards (Police / DMB / City)"]
+    end
+
+    subgraph BackendServices ["Backend Services (FastAPI + Groq)"]
+        FastAPI["FastAPI Routing Engine"]
+        GroqLLM["Groq Llama-3 (Intent & Safety Scoring)"]
+        OSRM["OSRM Routing Service"]
+    end
+
+    subgraph Database ["Supabase Cloud Platform"]
+        Auth["Supabase Auth (JWT & Role RLS)"]
+        Postgres[("PostgreSQL + PostGIS")]
+        Storage[("Supabase Storage (Photo Proofs)")]
+        Realtime["Supabase Realtime Subscriptions"]
+    end
+
+    ReportForm -->|Upload Image| Storage
+    ReportForm -->|Submit Incident Data| Postgres
+    Postgres -->|Broadcast Updates| Realtime
+    Realtime -->|Update Pins & Feeds| MainMap
+    Realtime -->|Live Queue| AuthDash
+    SOS -->|Alert Nearest Station| Postgres
+    AIChat -->|Query Safety Route| FastAPI
+    FastAPI -->|Extract Intent| GroqLLM
+    FastAPI -->|Calculate Paths| OSRM
+    FastAPI -->|Query Active Hazards| Postgres
+```
+
+---
+
+## 💻 Technology Stack
+
+### Frontend
+- **Framework**: React 19 + TanStack Router / TanStack Start
+- **Build Tool**: Vite 8 with TypeScript 5.8
+- **Styling**: Tailwind CSS v4 + Radix UI primitives (`shadcn/ui` components)
+- **Map & Geospatial**: Leaflet.js, React-Leaflet, Leaflet.markercluster
+- **Icons & Visuals**: Lucide React, Embla Carousel, Recharts (Analytics), Sonner (Toasts)
+- **Form Management**: React Hook Form, Zod schema validation
+
+### Backend & Cloud Infrastructure
+- **BaaS**: Supabase (PostgreSQL, Auth, Storage, Edge Functions, Row-Level Security)
+- **Geospatial Engine**: PostGIS spatial queries for distance calculation & hotspot clustering
+- **Microservices Backend**: Python 3.11 + FastAPI + Uvicorn
+- **AI / LLM Engine**: Groq API (High-throughput inference for safety route scoring and intent parsing)
+
+---
+
+## 🗄️ Database Schema
+
+The PostgreSQL database is organized with strict Row Level Security (RLS) policies:
+
+- **`profiles`**: User metadata, role classification (`citizen`, `police`, `dmb`, `city_corp`), and emergency contact information.
+- **`reports`**: Incident details including `type` (`crime`, `infrastructure`, `accident`), `subtype`, coordinates (`lat`, `lng`), `photo_url`, `description`, and lifecycle status (`sent`, `received`, `resolved`).
+- **`report_votes`**: Community verification records (`confirm` vs `dispute`).
+- **`sos_alerts`**: Emergency triggers with real-time tracking coordinates, user ID, timestamp, and linked `nearest_station_id`.
+- **`police_stations`**: Pre-seeded coordinates and metadata for police stations across Dhaka metropolitan areas.
+- **`hospitals`**: Pre-seeded emergency healthcare facilities with live bed and ICU availability statuses.
+
+---
+
+## 🚀 Getting Started & Local Development
+
+### Prerequisites
+- **Node.js**: `v20.x` or higher
+- **npm** or **bun**: `npm` v10+ or `bun` v1.1+
+- **Python** *(Optional, for AI Route microservice)*: `Python 3.10+`
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/zubairprince111/Nirapod-Dhaka.git
+cd Nirapod-Dhaka
+```
+
+### 2. Install Frontend Dependencies
+```bash
+npm install
+```
+
+### 3. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Fill in your Supabase and Groq credentials in `.env` (see [Environment Configuration](#-environment-configuration)).
+
+### 4. Start the Frontend Development Server
+```bash
 npm run dev
 ```
+Open your browser at `http://localhost:5173`.
+
+### 5. (Optional) Run the Python AI Safe Route Service
+```bash
+cd backend
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+
+pip install -r requirements.txt # fastapi uvicorn pydantic python-dotenv httpx
+python main.py
+```
+The FastAPI microservice will start on `http://localhost:8000`.
+
+### 6. (Optional) Seed Admin & Authority Accounts
+To initialize or refresh the demo authority accounts in your Supabase database:
+```bash
+node seed-admin.mjs
+```
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL="https://your-project.supabase.co"
+VITE_SUPABASE_PUBLISHABLE_KEY="your-anon-key"
+SUPABASE_URL="https://your-project.supabase.co"
+SUPABASE_PUBLISHABLE_KEY="your-anon-key"
+SUPABASE_PROJECT_ID="your-project-id"
+
+# Groq AI Service (For Safe Routing and Civic Chatbot)
+VITE_GROQ_API_KEY="gsk_your_groq_api_key"
+GROQ_API_KEY="gsk_your_groq_api_key"
+```
+
+---
+
+## 📁 Project Directory Structure
+
+```text
+Nirapod-Dhaka/
+├── backend/                  # Python FastAPI AI Routing Microservice
+│   ├── config.py             # Backend configuration and environment loading
+│   ├── main.py               # FastAPI application endpoints
+│   └── services/
+│       ├── llm.py            # Groq LLM prompt generation & intent parser
+│       ├── routing.py        # OSRM routing client & geocoding
+│       └── scoring.py        # Safety penalty and route risk scoring
+├── public/                   # Static assets, institutional badges, favicons
+│   ├── citycorporation.png
+│   ├── disaster.png
+│   ├── police.png
+│   └── hero_civic_illustration.png
+├── src/
+│   ├── components/           # React UI and feature components
+│   │   ├── dashboard/        # Police, DMB, and City Corp dashboards
+│   │   ├── map/              # Leaflet map canvas, markers, and chat panel
+│   │   └── ui/               # Radix UI / shadcn design system primitives
+│   ├── hooks/                # Custom React hooks (e.g., use-dashboard-data)
+│   ├── integrations/         # Supabase client, middleware, and type bindings
+│   ├── lib/                  # Utilities, geo algorithms, Groq client, auth state
+│   ├── routes/               # TanStack routing definitions
+│   │   ├── __root.tsx        # Application root layout & navigation chrome
+│   │   ├── index.tsx         # Landing page with live map teaser
+│   │   ├── auth.tsx          # Sign-in & Sign-up page with role dispatcher
+│   │   ├── map.tsx           # Fullscreen live interactive citizen map
+│   │   ├── dashboard.tsx     # Role-protected authority dashboard wrapper
+│   │   ├── lost-phone.tsx    # Standalone lost device locator
+│   │   ├── locate.$token.tsx # Real-time emergency token map tracking
+│   │   └── profile.tsx       # User profile, emergency contacts & report history
+│   └── styles.css            # Tailwind CSS design system rules
+├── supabase/
+│   └── migrations/           # PostgreSQL schemas, RLS policies, PostGIS functions
+├── seed-admin.mjs            # Automated seed script for authority accounts
+├── package.json              # Project dependencies and npm scripts
+├── tsconfig.json             # TypeScript configuration
+└── vite.config.ts            # Vite bundler configuration
+```
+
+---
+
+## 🎨 Accessibility & Design Philosophy
+
+- **Light Mode Civic Aesthetic**: Clean, high-contrast, official civic palette (`#F4F6F5` background, `#1A1D1E` charcoal ink, `#0E9C8C` trust teal).
+- **Icon + Label Navigation**: Every interactive element combines intuitive iconography with clear descriptive text for low-literacy users.
+- **Bilingual Interface**: Seamless one-tap toggle between **Bangla (বাংলা)** and **English** with optimized Bengali typography.
+- **Ergonomic Tap Targets**: Minimum 44px touch targets optimized for single-handed mobile usage on busy Dhaka streets.
+
+---
+
+## 🚢 Deployment
+
+The frontend is configured for deployment on **Vercel** with zero configuration required:
+
+1. Push your repository to GitHub (`main` branch).
+2. Import the repository into [Vercel](https://vercel.com).
+3. Add the required environment variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_GROQ_API_KEY`).
+4. Click **Deploy**.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! If you would like to contribute:
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — feel free to use and adapt it for civic improvements.
+
+---
+
+<div align="center">
+  <sub>Built for the citizens of Dhaka City. Stay Alert • Stay Safe • নিরাপদ ঢাকা</sub>
+</div>
