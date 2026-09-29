@@ -30,7 +30,7 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "server" },
     }),
-    nitro({ defaultPreset: "cloudflare-module" }),
+    nitro({ defaultPreset: "node-server" }),
     react(),
   ],
 });
