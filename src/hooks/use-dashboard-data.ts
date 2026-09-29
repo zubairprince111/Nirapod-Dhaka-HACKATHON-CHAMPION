@@ -34,7 +34,7 @@ export function useDashboardReports(role: AppRole | null) {
         .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as Report[];
+      return (data ?? []) as unknown as Report[];
     },
     refetchInterval: 30_000,
     staleTime: 10_000,
@@ -149,8 +149,10 @@ export function useReportActions() {
   const qc = useQueryClient();
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: ReportStatus }) => {
-      const { error } = await supabase.from("reports").update({ status }).eq("id", id);
+    mutationFn: async ({ id, status, resolution_image_url }: { id: string; status: ReportStatus; resolution_image_url?: string }) => {
+      const updatePayload: any = { status };
+      if (resolution_image_url) updatePayload.resolution_image_url = resolution_image_url;
+      const { error } = await supabase.from("reports").update(updatePayload).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {

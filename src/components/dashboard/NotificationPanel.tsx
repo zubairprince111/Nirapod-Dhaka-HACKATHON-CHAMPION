@@ -12,6 +12,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useApp } from "@/lib/app-context";
 import { timeAgo } from "@/lib/reports";
+import { useAuth } from "@/lib/auth";
+import { Link } from "@tanstack/react-router";
 
 type Notification = {
   id: string;
@@ -104,8 +106,9 @@ export function NotificationPanel({ trigger }: { trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [notifications] = useState(generateMockNotifications);
   const { t, lang } = useApp();
+  const { user } = useAuth();
 
-  const unread = notifications.filter((n) => !n.read).length;
+  const unread = user ? notifications.filter((n) => !n.read).length : 0;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -140,9 +143,24 @@ export function NotificationPanel({ trigger }: { trigger?: React.ReactNode }) {
           </button>
         </div>
 
-        <div className="db-scroll max-h-96 overflow-y-auto">
-          {/* Today */}
-          <div className="px-4 pt-3 pb-1">
+        {!user ? (
+          <div className="p-8 text-center space-y-4">
+            <ShieldAlert className="size-12 text-muted-foreground mx-auto" />
+            <h3 className="font-display text-lg">{t("loginToAct")}</h3>
+            <p className="text-sm text-muted-foreground">{t("needAccount")}</p>
+            <div className="flex flex-col gap-3 mt-4">
+              <Link to="/auth" search={{ mode: "login" }} onClick={() => setOpen(false)} className="w-full inline-flex justify-center items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-deep transition-colors">
+                {t("login")}
+              </Link>
+              <Link to="/auth" search={{ mode: "signup" }} onClick={() => setOpen(false)} className="w-full inline-flex justify-center items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-muted transition-colors">
+                {t("signup")}
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="db-scroll max-h-96 overflow-y-auto">
+            {/* Today */}
+            <div className="px-4 pt-3 pb-1">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {t("notifToday")}
             </p>
@@ -214,7 +232,8 @@ export function NotificationPanel({ trigger }: { trigger?: React.ReactNode }) {
                 </div>
               );
             })}
-        </div>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

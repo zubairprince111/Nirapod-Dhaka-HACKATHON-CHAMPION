@@ -14,6 +14,9 @@ import {
   Quote,
   Clock,
   MapPin,
+  Sparkles,
+  Mic,
+  Camera,
 } from "lucide-react";
 import { BrandMark, LangToggle } from "@/components/Chrome";
 import { useApp } from "@/lib/app-context";
@@ -43,21 +46,21 @@ function Landing() {
 
   return (
     <div className="min-h-dvh bg-background selection:bg-primary/20">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <header className="absolute left-0 right-0 top-0 z-50 border-b border-border/10 bg-transparent">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
           <BrandMark />
           <div className="flex items-center gap-4 lg:gap-8">
-            <nav className="hidden lg:flex gap-6 text-sm font-medium text-muted-foreground">
-              <a href="#how-it-works" className="hover:text-foreground transition-colors">
+            <nav className="hidden lg:flex gap-6 text-sm font-medium text-white/80 drop-shadow-md">
+              <a href="#how-it-works" className="hover:text-white transition-colors">
                 {t("howItWorks")}
               </a>
-              <a href="#features" className="hover:text-foreground transition-colors">
+              <a href="#features" className="hover:text-white transition-colors">
                 {t("features")}
               </a>
-              <a href="#stats" className="hover:text-foreground transition-colors">
+              <a href="#stats" className="hover:text-white transition-colors">
                 {t("stats")}
               </a>
-              <a href="#help" className="hover:text-foreground transition-colors">
+              <a href="#help" className="hover:text-white transition-colors">
                 {t("helpCenter")}
               </a>
             </nav>
@@ -76,18 +79,30 @@ function Landing() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden pt-12 pb-20 lg:pt-24 lg:pb-32">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-12 items-center">
-              <div className="order-2 lg:order-1 lg:col-span-6 text-center lg:text-left mt-12 lg:mt-0">
-                <h1 className="font-display text-4xl leading-[1.15] tracking-tight text-foreground sm:text-5xl lg:text-6xl max-w-2xl mx-auto lg:mx-0">
+        <section className="relative overflow-hidden min-h-[90vh] lg:min-h-[100vh] flex flex-col bg-background">
+          {/* Background Image Layer */}
+          <div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: "url('/hero.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+          {/* Gradient overlay removed per request */}
+          
+          <div className="flex-1 flex items-center w-full relative z-20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full pt-28 pb-12 lg:pt-0 lg:pb-0">
+              <div className="max-w-2xl text-center lg:text-left mx-auto lg:mx-0">
+                <h1 className="font-display text-4xl leading-[1.15] tracking-tight text-white sm:text-5xl lg:text-6xl max-w-2xl mx-auto lg:mx-0 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
                   {t("heroTitle1")}
                   <br />
                   {t("heroTitle2")}
                   <br />
-                  <span className="text-primary">{t("heroTitle3")}</span>
+                  <span className="text-primary drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">{t("heroTitle3")}</span>
                 </h1>
-                <p className="mt-6 text-lg leading-relaxed text-muted-foreground max-w-xl mx-auto lg:mx-0">
+                <p className="mt-6 text-lg leading-relaxed text-white/90 font-medium max-w-xl mx-auto lg:mx-0 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
                   {t("heroDesc").split("\n")[0]}
                   <br />
                   {t("heroDesc").split("\n")[1]}
@@ -108,12 +123,8 @@ function Landing() {
                     <MapIcon className="size-5 text-primary" />
                     {t("viewLiveMap")}
                   </Link>
-                  <button className="tap-target inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-crime px-8 py-4 text-base font-semibold text-destructive-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:bg-crime-deep">
-                    <Siren className="size-5" />
-                    {t("emergencySos")}
-                  </button>
                 </div>
-                <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm font-medium text-muted-foreground">
+                <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm font-semibold text-white/90 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="size-4 text-resolved" /> {t("safe")}
                   </span>
@@ -125,44 +136,25 @@ function Landing() {
                   </span>
                 </div>
               </div>
-
-              <div className="order-1 lg:order-2 lg:col-span-6 relative flex justify-center self-stretch -mx-4 sm:-mx-6 lg:mx-0 lg:w-full">
-                <style>{`
-                  .hero-fade {
-                    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%);
-                    mask-image: linear-gradient(to bottom, transparent, black 15%);
-                  }
-                  @media (min-width: 1024px) {
-                    .hero-fade {
-                      -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent), linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-                      -webkit-mask-composite: source-in;
-                      mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent), linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-                      mask-composite: intersect;
-                    }
-                  }
-                `}</style>
-                <div className="relative w-full aspect-[4/3] lg:aspect-[4/3.5] flex items-center justify-center hero-fade">
-                  <img
-                    src="/hero_civic_illustration.png"
-                    alt="Civic Platform Illustration"
-                    className="object-cover w-full h-full mix-blend-multiply opacity-90"
-                  />
-                </div>
+            </div>
+          </div>
+          
+          <div className="w-full relative z-30 pb-10 lg:pb-16 mt-auto">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-6">
+                {t("workingTogether")}
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+                <TrustCard imgSrc="/citycorporation.png" title={t("cityCorp")} />
+                <TrustCard imgSrc="/police.png" title={t("bdPolice")} />
+                <TrustCard imgSrc="/disaster.png" title={t("dmb")} />
+                <TrustCard icon={Stethoscope} title={t("healthEmergency")} />
               </div>
             </div>
           </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
-          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-8">
-            {t("workingTogether")}
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-            <TrustCard imgSrc="/citycorporation.png" title={t("cityCorp")} />
-            <TrustCard imgSrc="/police.png" title={t("bdPolice")} />
-            <TrustCard imgSrc="/disaster.png" title={t("dmb")} />
-            <TrustCard icon={Stethoscope} title={t("healthEmergency")} />
-          </div>
+          
+          {/* Bottom fade connecting to the next section */}
+          <div className="absolute inset-x-0 bottom-0 h-48 lg:h-72 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
         </section>
 
         <section id="stats" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
@@ -205,14 +197,14 @@ function Landing() {
           <div className="relative">
             <div className="hidden lg:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-border z-0 border-t border-dashed border-muted-foreground/30"></div>
             <div className="grid gap-12 lg:gap-8 lg:grid-cols-4 relative z-10">
-              <StepCard step="1" title={t("step1Title")} desc={t("step1Desc")} icon={Smartphone} />
-              <StepCard step="2" title={t("step2Title")} desc={t("step2Desc")} icon={Users} />
-              <StepCard step="3" title={t("step3Title")} desc={t("step3Desc")} icon={Building2} />
+              <StepCard step="1" title={t("step1Title")} desc={t("step1Desc")} icon={Sparkles} />
+              <StepCard step="2" title={t("step2Title")} desc={t("step2Desc")} icon={Mic} />
+              <StepCard step="3" title={t("step3Title")} desc={t("step3Desc")} icon={Camera} />
               <StepCard
                 step="4"
                 title={t("step4Title")}
                 desc={t("step4Desc")}
-                icon={CheckCircle2}
+                icon={Building2}
               />
             </div>
           </div>
@@ -351,7 +343,7 @@ function Landing() {
         </section>
 
         <section id="features" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             <FeatureCard
               icon={Siren}
               title={t("emergencySos")}
@@ -365,13 +357,6 @@ function Landing() {
               desc={t("shareRealTimeLocation")}
               color="text-primary"
               bg="bg-primary-tint"
-            />
-            <FeatureCard
-              icon={Smartphone}
-              title={t("lostPhoneTitle")}
-              desc={t("findByPhoneNumber")}
-              color="text-infra-deep"
-              bg="bg-infra-tint"
             />
             <FeatureCard
               icon={ShieldCheck}
@@ -426,11 +411,6 @@ function Landing() {
                     <a href="#stats" className="hover:text-primary transition-colors">
                       {t("stats")}
                     </a>
-                  </li>
-                  <li>
-                    <Link to="/lost-phone" className="hover:text-primary transition-colors">
-                      {t("lostPhoneTitle")}
-                    </Link>
                   </li>
                 </ul>
               </div>
@@ -531,15 +511,15 @@ function Landing() {
 
 function TrustCard({ icon: Icon, imgSrc, title }: { icon?: any; imgSrc?: string; title: string }) {
   return (
-    <div className="flex items-center justify-center gap-3 p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md transition-shadow text-center">
-      <div className="w-10 h-10 shrink-0 rounded-full bg-muted flex items-center justify-center text-foreground overflow-hidden">
+    <div className="flex items-center justify-center gap-3 p-4 sm:p-5 rounded-2xl bg-background/60 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-sm hover:shadow-md hover:bg-background/80 transition-all text-center">
+      <div className="w-10 h-10 shrink-0 rounded-full bg-muted/80 flex items-center justify-center text-foreground overflow-hidden">
         {imgSrc ? (
           <img src={imgSrc} alt={title} className="w-full h-full object-cover" />
         ) : Icon ? (
           <Icon className="size-5" />
         ) : null}
       </div>
-      <span className="font-semibold text-sm text-left leading-tight">{title}</span>
+      <span className="font-semibold text-sm text-left leading-tight text-foreground drop-shadow-sm">{title}</span>
     </div>
   );
 }

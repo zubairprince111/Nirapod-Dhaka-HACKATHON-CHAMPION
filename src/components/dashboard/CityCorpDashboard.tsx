@@ -8,19 +8,18 @@ import {
   Droplets,
   FileText,
   Lamp,
-  MapPin,
   Shield,
-  ShieldAlert,
   Trash2,
   TrendingUp,
-  Users,
   Construction,
+  Cpu
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { KPICard, KPIGrid } from "./KPICards";
 import { ReportQueue } from "./ReportQueue";
 import { DashboardMap } from "./DashboardMap";
 import { ReportDetail } from "./ReportDetail";
+import { AIPriorityQueue } from "./AIPriorityQueue";
 import {
   WeeklyChart,
   CategoryPieChart,
@@ -28,6 +27,7 @@ import {
   ResponseTimeChart,
 } from "./AnalyticsCharts";
 import { DashboardShell } from "./DashboardShell";
+import { KPIGridSkeleton, QueueSkeleton, MapSkeleton } from "./DashboardSkeletons";
 import type { Report, ReportStatus } from "@/lib/reports";
 import type { DashboardStats, SosAlert } from "@/hooks/use-dashboard-data";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ type Props = {
   sosAlerts: SosAlert[];
   hotspots: { lat: number; lng: number; report_count: number }[];
   weeklyData: { label: string; crime: number; infrastructure: number; accident: number }[];
-  onStatusChange: (id: string, status: ReportStatus) => void;
+  onStatusChange: (id: string, status: ReportStatus, resolutionImage?: string) => void;
 };
 
 type InfraCategory = {
@@ -50,10 +50,10 @@ type InfraCategory = {
 };
 
 const INFRA_CATEGORIES: InfraCategory[] = [
-  { icon: Construction, labelKey: "ccRoadDamage", subtypes: ["road"], color: "text-infra bg-infra-tint" },
-  { icon: Droplets, labelKey: "ccDrainage", subtypes: ["drain", "waterlogging"], color: "text-primary bg-primary-tint" },
-  { icon: AlertTriangle, labelKey: "openManhole", subtypes: ["manhole"], color: "text-crime bg-crime-tint" },
-  { icon: Lamp, labelKey: "ccStreetLights", subtypes: ["streetlight"], color: "text-pending bg-pending-tint" },
+  { icon: Construction, labelKey: "ccRoadDamage", subtypes: ["road"], color: "text-infra bg-infra-tint border-infra/20" },
+  { icon: Droplets, labelKey: "ccDrainage", subtypes: ["drain", "waterlogging"], color: "text-primary bg-primary-tint border-primary/20" },
+  { icon: AlertTriangle, labelKey: "openManhole", subtypes: ["manhole"], color: "text-crime bg-crime-tint border-crime/20" },
+  { icon: Lamp, labelKey: "ccStreetLights", subtypes: ["streetlight"], color: "text-pending bg-pending-tint border-pending/20" },
 ];
 
 export function CityCorpDashboard({
@@ -69,6 +69,9 @@ export function CityCorpDashboard({
   const [section, setSection] = useState("dashboard");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
+  // Fallback loading check
+  const isLoading = allReports.length === 0 && stats.totalReports === 0;
+
   // Infrastructure breakdown
   const infraCounts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -80,7 +83,7 @@ export function CityCorpDashboard({
     return map;
   }, [allReports]);
 
-  // Department performance
+  // Department performance workload
   const deptPerf = useMemo(() => {
     const crime = allReports.filter((r) => r.type === "crime");
     const infra = allReports.filter((r) => r.type === "infrastructure");
@@ -88,18 +91,24 @@ export function CityCorpDashboard({
     return [
       {
         name: t("police"),
-        total: crime.length,
+        total: crime.filter((r) => r.status !== "resolved").length,
         resolved: crime.filter((r) => r.status === "resolved").length,
+        color: "bg-crime",
+        bg: "bg-crime-tint"
       },
       {
         name: t("roleDmb"),
-        total: accident.length,
+        total: accident.filter((r) => r.status !== "resolved").length,
         resolved: accident.filter((r) => r.status === "resolved").length,
+        color: "bg-infra",
+        bg: "bg-infra-tint"
       },
       {
         name: t("roleCityCorp"),
-        total: infra.length,
+        total: infra.filter((r) => r.status !== "resolved").length,
         resolved: infra.filter((r) => r.status === "resolved").length,
+        color: "bg-primary",
+        bg: "bg-primary-tint"
       },
     ];
   }, [allReports, t]);
@@ -113,6 +122,7 @@ export function CityCorpDashboard({
             hotspots={hotspots}
             onSelect={setSelectedReport}
             height="h-[calc(100vh-120px)]"
+            isLoading={isLoading}
           />
         );
 
@@ -122,6 +132,7 @@ export function CityCorpDashboard({
             reports={allReports}
             onSelect={setSelectedReport}
             onStatusChange={onStatusChange}
+            isLoading={isLoading}
           />
         );
 
@@ -137,115 +148,134 @@ export function CityCorpDashboard({
 
       default:
         return (
-          <div className="space-y-6">
-            {/* Executive Overview Header */}
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <Shield className="size-5" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg">{t("ccExecOverview")}</h2>
-                <p className="text-xs text-muted-foreground">
-                  {t("roleCityCorp")} · {new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                </p>
+          <div className="space-y-8 pb-12">
+            {/* Header Area */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20">
+                  <Shield className="size-6" />
+                </div>
+                <div>
+                  <h2 className="font-display text-xl leading-tight tracking-tight">{t("cityCorpOpsTitle")}</h2>
+                  <p className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="relative flex size-2 items-center justify-center">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-resolved opacity-75"></span>
+                      <span className="relative inline-flex size-1.5 rounded-full bg-resolved"></span>
+                    </span>
+                    Live Data Feed · {new Date().toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* KPI Cards */}
-            <KPIGrid>
-              <KPICard
-                label={t("kpiTotalReports")}
-                value={stats.totalReports}
-                icon={<FileText className="size-5" />}
-                color="primary"
-                delay={0}
-              />
-              <KPICard
-                label={t("kpiOpenReports")}
-                value={stats.openReports}
-                icon={<Clock className="size-5" />}
-                color="pending"
-                delay={80}
-              />
-              <KPICard
-                label={t("kpiResolvedToday")}
-                value={stats.resolvedToday}
-                icon={<CheckCircle2 className="size-5" />}
-                color="resolved"
-                trend={{ value: 15, label: "vs yesterday" }}
-                delay={160}
-              />
-              <KPICard
-                label={t("kpiHighPriority")}
-                value={stats.highPriority}
-                icon={<AlertTriangle className="size-5" />}
-                color="crime"
-                delay={240}
-              />
-            </KPIGrid>
+            {/* AI Priority Section */}
+            {!isLoading && <AIPriorityQueue reports={allReports} onSelect={setSelectedReport} />}
 
-            {/* Map & Sidebar panels */}
+            {/* KPI Cards */}
+            {isLoading ? (
+              <KPIGridSkeleton count={4} />
+            ) : (
+              <KPIGrid>
+                <KPICard
+                  label={t("kpiTotalReports")}
+                  value={stats.totalReports}
+                  icon={<FileText className="size-5" />}
+                  color="primary"
+                  delay={0}
+                />
+                <KPICard
+                  label={t("kpiOpenReports")}
+                  value={stats.openReports}
+                  icon={<Clock className="size-5" />}
+                  color="pending"
+                  delay={100}
+                />
+                <KPICard
+                  label={t("kpiResolvedToday")}
+                  value={stats.resolvedToday}
+                  icon={<CheckCircle2 className="size-5" />}
+                  color="resolved"
+                  trend={{ value: 15, label: "vs yesterday" }}
+                  delay={200}
+                />
+                <KPICard
+                  label={t("kpiHighPriority")}
+                  value={stats.highPriority}
+                  icon={<AlertTriangle className="size-5" />}
+                  color="crime"
+                  delay={300}
+                />
+              </KPIGrid>
+            )}
+
             <div className="grid gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
                 <DashboardMap
                   reports={allReports}
                   hotspots={hotspots}
                   onSelect={setSelectedReport}
+                  isLoading={isLoading}
                 />
               </div>
 
-              <div className="space-y-4">
-                {/* Infrastructure Breakdown */}
-                <div className="rounded-2xl border border-border bg-card p-5 shadow-card animate-slide-in-up">
-                  <h3 className="flex items-center gap-2 font-display text-sm">
-                    <Building2 className="size-4 text-infra" />
-                    {t("ccInfraIssues")}
-                  </h3>
-                  <div className="mt-4 space-y-2">
+              <div className="flex flex-col gap-6">
+                {/* Infrastructure Status */}
+                <div className="flex-1 rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-shadow hover:shadow-md animate-slide-in-up" style={{ animationDelay: "150ms" }}>
+                  <div className="mb-5 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 font-display text-sm">
+                      <Building2 className="size-4 text-infra" />
+                      {t("ccInfraIssues")}
+                    </h3>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Active</span>
+                  </div>
+                  
+                  <div className="space-y-3">
                     {INFRA_CATEGORIES.map((cat) => {
                       const count = infraCounts[cat.labelKey] ?? 0;
                       return (
                         <div
                           key={cat.labelKey}
-                          className="flex items-center gap-3 rounded-xl bg-muted/50 px-3 py-2.5"
+                          className="group flex items-center gap-3 rounded-xl border border-border/50 bg-background px-3 py-2.5 transition-colors hover:bg-muted"
                         >
                           <div
                             className={cn(
-                              "flex size-8 items-center justify-center rounded-lg",
+                              "flex size-9 items-center justify-center rounded-lg border",
                               cat.color,
                             )}
                           >
                             <cat.icon className="size-4" />
                           </div>
-                          <span className="flex-1 text-xs font-medium">{t(cat.labelKey)}</span>
-                          <span className="font-display text-sm">{count}</span>
+                          <span className="flex-1 text-xs font-semibold text-foreground/90 group-hover:text-foreground">{t(cat.labelKey)}</span>
+                          <span className="font-display text-sm font-bold">{count}</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Department Performance */}
-                <div className="rounded-2xl border border-border bg-card p-5 shadow-card animate-slide-in-up" style={{ animationDelay: "100ms" }}>
-                  <h3 className="flex items-center gap-2 font-display text-sm">
+                {/* Department Workload */}
+                <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-shadow hover:shadow-md animate-slide-in-up" style={{ animationDelay: "250ms" }}>
+                  <h3 className="mb-5 flex items-center gap-2 font-display text-sm">
                     <BarChart3 className="size-4 text-primary" />
-                    {t("ccDeptPerformance")}
+                    {t("authorityWorkload")}
                   </h3>
-                  <div className="mt-4 space-y-3">
+                  <div className="space-y-4">
                     {deptPerf.map((dept) => {
-                      const rate = dept.total > 0 ? Math.round((dept.resolved / dept.total) * 100) : 0;
+                      const totalWork = dept.total + dept.resolved;
+                      const rate = totalWork > 0 ? Math.round((dept.resolved / totalWork) * 100) : 0;
+                      
                       return (
                         <div key={dept.name} className="space-y-1.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-medium">{dept.name}</span>
-                            <span className="text-muted-foreground">
-                              {dept.resolved}/{dept.total} · {rate}%
+                          <div className="flex items-center justify-between text-xs font-semibold">
+                            <span className="text-foreground/90">{dept.name}</span>
+                            <span className="text-muted-foreground font-mono text-[10px]">
+                              <span className="text-foreground">{dept.total}</span> active
                             </span>
                           </div>
-                          <div className="h-2 rounded-full bg-muted">
+                          <div className={cn("h-2.5 w-full overflow-hidden rounded-full", dept.bg)}>
                             <div
-                              className="h-2 rounded-full bg-primary transition-all duration-700"
-                              style={{ width: `${rate}%` }}
+                              className={cn("h-full transition-all duration-1000 ease-out", dept.color)}
+                              style={{ width: `${Math.max(rate, 5)}%` }}
                             />
                           </div>
                         </div>
@@ -256,30 +286,30 @@ export function CityCorpDashboard({
               </div>
             </div>
 
-            {/* All Reports Queue */}
-            <div>
-              <h3 className="mb-3 flex items-center gap-2 font-display text-sm">
-                <FileText className="size-4 text-primary" />
-                {t("allStreams")}
-              </h3>
-              <ReportQueue
-                reports={allReports}
-                onSelect={setSelectedReport}
-                onStatusChange={onStatusChange}
-              />
-            </div>
+            {/* Queue & Analytics */}
+            <div className="grid gap-6 xl:grid-cols-3">
+              <div className="xl:col-span-2">
+                <h3 className="mb-4 flex items-center gap-2 font-display text-sm">
+                  <FileText className="size-4 text-primary" />
+                  {t("allStreams")}
+                </h3>
+                <ReportQueue
+                  reports={allReports}
+                  onSelect={setSelectedReport}
+                  onStatusChange={onStatusChange}
+                  isLoading={isLoading}
+                />
+              </div>
 
-            {/* Analytics Grid */}
-            <div>
-              <h3 className="mb-3 flex items-center gap-2 font-display text-sm">
-                <TrendingUp className="size-4 text-primary" />
-                {t("dbSideAnalytics")}
-              </h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <WeeklyChart data={weeklyData} />
-                <CategoryPieChart stats={stats} />
-                <ResolutionRateChart stats={stats} />
-                <ResponseTimeChart />
+              <div>
+                <h3 className="mb-4 flex items-center gap-2 font-display text-sm">
+                  <TrendingUp className="size-4 text-primary" />
+                  {t("dbSideAnalytics")}
+                </h3>
+                <div className="flex flex-col gap-6">
+                  <WeeklyChart data={weeklyData} />
+                  <ResolutionRateChart stats={stats} />
+                </div>
               </div>
             </div>
           </div>

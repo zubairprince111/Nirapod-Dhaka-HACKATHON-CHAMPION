@@ -48,7 +48,7 @@ function ProfilePage() {
         .select("*")
         .eq("reporter_id", user!.id)
         .order("created_at", { ascending: false });
-      return (data ?? []) as Report[];
+      return (data ?? []) as unknown as Report[];
     },
   });
 
@@ -278,8 +278,12 @@ function ReportCard({ report, lang }: { report: Report; lang: "en" | "bn" }) {
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-xs font-bold text-resolved-deep">94%</span>
-            <span className="text-[10px] text-muted-foreground">{t("verified")}</span>
+            {report.ai_confidence ? (
+              <>
+                <span className="text-xs font-bold text-resolved-deep">{Math.round(report.ai_confidence * 100)}%</span>
+                <span className="text-[10px] text-muted-foreground">{t("verified")}</span>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

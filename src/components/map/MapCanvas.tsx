@@ -3,6 +3,7 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import type { Report, ReportType } from "@/lib/reports";
 import { isFresh } from "@/lib/reports";
+import { dhakaBoundaryPolygon } from "@/data/dhakaBoundary";
 
 const ICON_PATHS: Record<ReportType, string> = {
   crime: "M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm0 5.5v5m0 3v.5",
@@ -52,7 +53,7 @@ export type MapCanvasProps = {
   zoom?: number;
   onSelect?: (r: Report) => void;
   draft?: { lat: number; lng: number } | null;
-  onDraftMove?: (lat: number, lng: number) => void;
+  onDraftMove?: (lat: number, lng: number, revert?: () => void) => void;
   interactive?: boolean;
   className?: string;
 };
@@ -88,11 +89,22 @@ export default function MapCanvas({
       doubleClickZoom: interactive,
       touchZoom: interactive,
       attributionControl: true,
+      maxBounds: L.polygon(dhakaBoundaryPolygon as [number, number][]).getBounds().pad(0.3),
+      maxBoundsViscosity: 0.8,
     });
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap",
       crossOrigin: true,
+    }).addTo(map);
+
+    L.polygon(dhakaBoundaryPolygon as [number, number][], {
+      color: "#0f766e",
+      weight: 2,
+      fillColor: "#14b8a6",
+      fillOpacity: 0.05,
+      dashArray: "4 4",
+      interactive: false,
     }).addTo(map);
 
     const cluster = L.markerClusterGroup({
@@ -117,11 +129,21 @@ export default function MapCanvas({
 
     const invalidate = () => map.invalidateSize();
     const timer = window.setTimeout(invalidate, 120);
+    // Also re-run a few more times to catch late layout (Suspense fade-in,
+    // parent flex settling, font swap). Without these the map can mount into
+    // a 0-height container and render blank.
+    [200, 400, 800].forEach((d) => window.setTimeout(invalidate, d));
     window.addEventListener("resize", invalidate);
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && holder.current) {
+      ro = new ResizeObserver(() => invalidate());
+      ro.observe(holder.current);
+    }
 
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener("resize", invalidate);
+      ro?.disconnect();
       map.remove();
       mapRef.current = null;
       clusterRef.current = null;
@@ -150,16 +172,44 @@ export default function MapCanvas({
     if (!hot) return;
     hot.clearLayers();
     hotspots.forEach((h) => {
+      // Gentle warning wash
       L.circle([h.lat, h.lng], {
-        radius: 650,
-        stroke: false,
+        radius: 500,
+        stroke: true,
+        color: "#E23350",
+        weight: 1,
         fillColor: "#E23350",
-        fillOpacity: 0.22,
+        fillOpacity: 0.1,
         className: "animate-wash",
         interactive: false,
       }).addTo(hot);
     });
   }, [hotspots]);
+
+  // Tap-to-place: when a draft pin is active, clicking the map background
+  // also moves the pin (in addition to dragging the pin itself). A latest-ref
+  // keeps `draft` fresh so the revert callback always points at the latest
+  // committed position.
+  const latestDraftRef = useRef(draft);
+  latestDraftRef.current = draft;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!draft || !onDraftMove || !interactive) return;
+    const handler = (e: L.LeafletMouseEvent) => {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      onDraftMoveRef.current?.(lat, lng, () => {
+        const cur = latestDraftRef.current;
+        const d = draftRef.current;
+        if (d && cur) d.setLatLng([cur.lat, cur.lng]);
+      });
+    };
+    map.on("click", handler);
+    return () => {
+      map.off("click", handler);
+    };
+  }, [draft, interactive, onDraftMove]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -179,7 +229,9 @@ export default function MapCanvas({
       }).addTo(map);
       m.on("dragend", () => {
         const p = m.getLatLng();
-        onDraftMoveRef.current?.(p.lat, p.lng);
+        onDraftMoveRef.current?.(p.lat, p.lng, () => {
+          m.setLatLng([draft.lat, draft.lng]);
+        });
       });
       draftRef.current = m;
       map.setView([draft.lat, draft.lng], Math.max(map.getZoom(), 16));

@@ -12,9 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as LostPhoneRouteImport } from './routes/lost-phone'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as DemoAiRouteImport } from './routes/demo.ai'
 import { Route as LocateTokenRouteImport } from './routes/locate.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -32,11 +32,6 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LostPhoneRoute = LostPhoneRouteImport.update({
-  id: '/lost-phone',
-  path: '/lost-phone',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MapRoute = MapRouteImport.update({
   id: '/map',
   path: '/map',
@@ -45,6 +40,11 @@ const MapRoute = MapRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoAiRoute = DemoAiRouteImport.update({
+  id: '/demo/ai',
+  path: '/demo/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocateTokenRoute = LocateTokenRouteImport.update({
@@ -57,18 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
-  '/lost-phone': typeof LostPhoneRoute
   '/map': typeof MapRoute
   '/profile': typeof ProfileRoute
+  '/demo/ai': typeof DemoAiRoute
   '/locate/$token': typeof LocateTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
-  '/lost-phone': typeof LostPhoneRoute
   '/map': typeof MapRoute
   '/profile': typeof ProfileRoute
+  '/demo/ai': typeof DemoAiRoute
   '/locate/$token': typeof LocateTokenRoute
 }
 export interface FileRoutesById {
@@ -76,9 +76,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
-  '/lost-phone': typeof LostPhoneRoute
   '/map': typeof MapRoute
   '/profile': typeof ProfileRoute
+  '/demo/ai': typeof DemoAiRoute
   '/locate/$token': typeof LocateTokenRoute
 }
 export interface FileRouteTypes {
@@ -87,27 +87,27 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
-    | '/lost-phone'
     | '/map'
     | '/profile'
+    | '/demo/ai'
     | '/locate/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/dashboard'
-    | '/lost-phone'
     | '/map'
     | '/profile'
+    | '/demo/ai'
     | '/locate/$token'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/dashboard'
-    | '/lost-phone'
     | '/map'
     | '/profile'
+    | '/demo/ai'
     | '/locate/$token'
   fileRoutesById: FileRoutesById
 }
@@ -115,9 +115,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
-  LostPhoneRoute: typeof LostPhoneRoute
   MapRoute: typeof MapRoute
   ProfileRoute: typeof ProfileRoute
+  DemoAiRoute: typeof DemoAiRoute
   LocateTokenRoute: typeof LocateTokenRoute
 }
 
@@ -144,13 +144,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lost-phone': {
-      id: '/lost-phone'
-      path: '/lost-phone'
-      fullPath: '/lost-phone'
-      preLoaderRoute: typeof LostPhoneRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/map': {
       id: '/map'
       path: '/map'
@@ -163,6 +156,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/ai': {
+      id: '/demo/ai'
+      path: '/demo/ai'
+      fullPath: '/demo/ai'
+      preLoaderRoute: typeof DemoAiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/locate/$token': {
@@ -179,9 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
-  LostPhoneRoute: LostPhoneRoute,
   MapRoute: MapRoute,
   ProfileRoute: ProfileRoute,
+  DemoAiRoute: DemoAiRoute,
   LocateTokenRoute: LocateTokenRoute,
 }
 export const routeTree = rootRouteImport

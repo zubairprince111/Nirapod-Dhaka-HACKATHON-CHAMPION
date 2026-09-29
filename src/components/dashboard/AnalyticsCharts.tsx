@@ -38,12 +38,12 @@ function ChartCard({ title, children, className }: ChartCardProps) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 shadow-card animate-slide-in-up",
+        "flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all hover:shadow-md animate-slide-in-up",
         className,
       )}
     >
-      <h3 className="mb-4 text-sm font-semibold text-foreground">{title}</h3>
-      {children}
+      <h3 className="mb-5 font-display text-sm tracking-tight text-foreground/90">{title}</h3>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

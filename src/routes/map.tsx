@@ -41,9 +41,15 @@ import {
   ChevronLeft,
   Image as ImageIcon,
   Zap,
+  Mic,
+  Square,
+  Sparkles,
 } from "lucide-react";
+import { AiAnalysisCard, type AiIntelligenceData, type VisualEvidenceData } from "@/components/ai/AiAnalysisCard";
+import { ReportComposer as ReportComposerImpl } from "@/components/report/ReportComposer";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/map/MapView";
+import { isWithinDhaka } from "@/data/dhakaBoundary";
 import { BrandMark, LangToggle } from "@/components/Chrome";
 import { StatusPill, TypeBadge } from "@/components/Badges";
 import { useApp } from "@/lib/app-context";
@@ -105,7 +111,16 @@ function MapPage() {
   useEffect(() => {
     if (!("geolocation" in navigator)) return;
     const id = navigator.geolocation.watchPosition(
-      (p) => setHere({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      (p) => {
+        const lat = p.coords.latitude;
+        const lng = p.coords.longitude;
+        if (isWithinDhaka(lat, lng)) {
+          setHere({ lat, lng });
+        } else {
+          toast.error("Your current location is outside the Nirapod Dhaka service area.", { id: "gps-out-of-bounds" });
+          setHere(null);
+        }
+      },
       () => setHere(null),
       { enableHighAccuracy: true, maximumAge: 15000 },
     );
@@ -163,7 +178,7 @@ function MapPage() {
                 <UserRound className="size-5" aria-hidden />
               </div>
               <span className="hidden lg:block truncate max-w-[100px]">
-                {profile?.emergency_contact_name || t("profile")}
+                {profile?.full_name || t("profile")}
               </span>
             </Link>
           ) : (
@@ -663,263 +678,40 @@ function DetailSheet({
             </div>
           </div>
         </div>
+        
+        {report.status === "resolved" && report.resolution_image_url && (
+          <div className="mb-4">
+            <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
+              <CheckCircle className="size-4 text-resolved" />
+              Resolution Proof
+            </h3>
+            <div className="overflow-hidden rounded-xl border border-border shadow-sm">
+              <img 
+                src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/proofs/${report.resolution_image_url}`} 
+                alt="Resolution Proof" 
+                className="w-full h-auto object-cover max-h-48"
+              />
+              <div className="bg-card p-3">
+                <p className="text-xs text-muted-foreground">The authority has attached this photo as proof of resolution.</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Sheet>
   );
 }
 
-function ReportComposer({
-  here,
-  onClose,
-  onDone,
-}: {
+function ReportComposer(props: {
   here: { lat: number; lng: number } | null;
   onClose: () => void;
   onDone: () => void;
 }) {
-  const { t, lang } = useApp();
-  const { user } = useAuth();
-  const [step, setStep] = useState(1);
-  const [type, setType] = useState<ReportType>("infrastructure");
-  const [subtype, setSubtype] = useState(SUBTYPES.infrastructure[0].key);
-  const [description, setDescription] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [pin, setPin] = useState(here ?? { lat: DHAKA_CENTER[0], lng: DHAKA_CENTER[1] });
-  const [busy, setBusy] = useState(false);
-  const [accidentDone, setAccidentDone] = useState(false);
-
-  useEffect(() => {
-    if (here) setPin(here);
-  }, [here]);
-
-  async function submit() {
-    if (!user) return;
-    if (description.trim().length < 3) {
-      toast.error(t("descriptionRequired"));
-      return;
-    }
-    setBusy(true);
-    try {
-      let path: string | null = null;
-      if (file) path = await uploadPhoto(file, user.id);
-      const { error } = await supabase.from("reports").insert({
-        reporter_id: user.id,
-        type,
-        subtype,
-        description: description.trim().slice(0, 1000),
-        photo_url: path,
-        lat: pin.lat,
-        lng: pin.lng,
-        area_name: areaName(pin.lat, pin.lng),
-      });
-      if (error) throw error;
-      toast.success(t("reportSent"));
-      if (type === "accident") setAccidentDone(true);
-      else onDone();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not send report");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (accidentDone) return <AmbulancePanel pin={pin} onClose={onDone} />;
-
-  const types: [ReportType, typeof ShieldAlert, string][] = [
-    ["infrastructure", TriangleAlert, "infra"],
-    ["crime", ShieldAlert, "crime"],
-    ["accident", CarFront, "accident"],
-  ];
-
-  return (
-    <div className="fixed inset-0 z-[1100] flex flex-col bg-background overflow-hidden">
-      <header className="flex shrink-0 items-center justify-between p-4 border-b border-border bg-card shadow-sm pt-safe">
-        <button
-          onClick={() => (step > 1 ? setStep(step - 1) : onClose())}
-          className="p-2 tap-target rounded-full hover:bg-secondary"
-        >
-          <ChevronLeft className="size-6" />
-        </button>
-        <h2 className="font-display text-lg font-bold">{t("newReport")}</h2>
-        <button onClick={onClose} className="p-2 tap-target rounded-full hover:bg-secondary">
-          <X className="size-6" />
-        </button>
-      </header>
-
-      <div className="flex shrink-0 items-center justify-center gap-4 py-4 bg-card shadow-sm relative z-10">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className={`flex items-center justify-center size-8 rounded-full font-bold text-sm transition-colors ${step === i ? "bg-primary text-primary-foreground" : step > i ? "bg-resolved text-resolved-deep" : "bg-secondary text-muted-foreground"}`}
-          >
-            {step > i ? <CheckCircle2 className="size-5" /> : i}
-          </div>
-        ))}
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 lg:p-8 w-full">
-        <div className="max-w-xl mx-auto h-full flex flex-col">
-          {step === 1 && (
-            <div className="flex flex-col gap-6">
-              <div>
-                <h3 className="font-display text-2xl font-bold mb-2">{t("whatToReport")}</h3>
-                <p className="text-muted-foreground text-sm">{t("selectCategory")}</p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {types.map(([key, Icon, tone]) => (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setType(key);
-                      setSubtype(SUBTYPES[key][0].key);
-                    }}
-                    className={`flex flex-col items-center justify-center gap-3 rounded-3xl border-2 p-6 transition-all active:scale-95 ${
-                      type === key
-                        ? tone === "crime"
-                          ? "border-crime bg-crime-tint text-crime-deep shadow-sm"
-                          : tone === "infra"
-                            ? "border-infra bg-infra-tint text-infra-deep shadow-sm"
-                            : "border-accident bg-accident-tint text-accident-deep shadow-sm"
-                        : "border-border bg-card text-foreground hover:border-primary/50"
-                    }`}
-                  >
-                    <Icon className="size-10 mb-1" />
-                    <span className="font-semibold text-sm">
-                      {t(key === "infrastructure" ? "infrastructure" : key)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="flex flex-col gap-6 h-full">
-              <div>
-                <h3 className="font-display text-2xl font-bold mb-2">{t("takeClearPhoto")}</h3>
-                <p className="text-muted-foreground text-sm">{t("makeSureVisible")}</p>
-              </div>
-
-              <div className="flex-1 min-h-[300px] relative rounded-3xl border-2 border-dashed border-border bg-secondary overflow-hidden flex flex-col items-center justify-center">
-                {file ? (
-                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-                ) : (
-                  <Camera className="size-12 text-muted-foreground opacity-30 mb-2" />
-                )}
-              </div>
-
-              <div className="flex items-center justify-center gap-6 mt-4 pb-4 shrink-0">
-                <label className="flex flex-col items-center justify-center size-14 rounded-full bg-card shadow-elevated text-muted-foreground cursor-pointer hover:bg-secondary">
-                  <ImageIcon className="size-6" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  />
-                </label>
-
-                <label className="flex items-center justify-center size-20 rounded-full bg-primary text-primary-foreground shadow-elevated cursor-pointer hover:scale-105 active:scale-95 transition-transform border-4 border-card ring-2 ring-primary">
-                  <Camera className="size-8" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="sr-only"
-                    onChange={(e) => {
-                      setFile(e.target.files?.[0] ?? null);
-                    }}
-                  />
-                </label>
-
-                <button className="flex flex-col items-center justify-center size-14 rounded-full bg-card shadow-elevated text-muted-foreground hover:bg-secondary">
-                  <Zap className="size-6" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="flex flex-col gap-6">
-              <div>
-                <h3 className="font-display text-2xl font-bold mb-2">{t("addDetails")}</h3>
-                <p className="text-muted-foreground text-sm">{t("whereIsHappening")}</p>
-              </div>
-
-              <div className="h-48 shrink-0 overflow-hidden rounded-3xl border-2 border-border shadow-sm">
-                <MapView
-                  className="size-full"
-                  reports={[]}
-                  center={[pin.lat, pin.lng]}
-                  zoom={16}
-                  draft={pin}
-                  onDraftMove={(lat, lng) => setPin({ lat, lng })}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold ml-1">{t("subtype")}</label>
-                <select
-                  value={subtype}
-                  onChange={(e) => setSubtype(e.target.value)}
-                  className="w-full rounded-2xl border-2 border-input bg-card px-4 py-3 shadow-sm focus:border-primary outline-none font-medium"
-                >
-                  {SUBTYPES[type].map((s) => (
-                    <option key={s.key} value={s.key}>
-                      {lang === "bn" ? s.bn : s.en}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-2 pb-12">
-                <label className="text-sm font-semibold ml-1">{t("description")}</label>
-                <textarea
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the issue..."
-                  className="w-full rounded-2xl border-2 border-input bg-card px-4 py-3 shadow-sm focus:border-primary outline-none resize-none font-medium"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="shrink-0 p-4 bg-background border-t border-border mt-auto pb-[env(safe-area-inset-bottom)] z-20">
-        <div className="max-w-xl mx-auto flex flex-col gap-2">
-          {step < 3 ? (
-            <>
-              <button
-                onClick={() => setStep(step + 1)}
-                className="w-full rounded-full bg-primary px-5 py-4 text-center font-bold text-lg text-primary-foreground shadow-elevated hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2"
-              >
-                {t("next")} <ChevronRight className="size-5" />
-              </button>
-              <button
-                onClick={() => setStep(step + 1)}
-                className="text-sm font-bold text-primary text-center py-3 hover:underline"
-              >
-                {t("skipStep")}
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={submit}
-              disabled={busy}
-              className="w-full rounded-full bg-primary px-5 py-4 text-center font-bold text-lg text-primary-foreground shadow-elevated hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              {busy && <Loader2 className="size-5 animate-spin" />}
-              {busy ? t("sending") : t("submit")}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  return <ReportComposerImpl {...props} />;
 }
+
+
+
 
 function AmbulancePanel({
   pin,

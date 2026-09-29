@@ -88,8 +88,8 @@ function AuthorityDashboard() {
     staleTime: 60_000,
   });
 
-  const handleStatusChange = (id: string, status: ReportStatus) => {
-    updateStatus.mutate({ id, status });
+  const handleStatusChange = (id: string, status: ReportStatus, resolutionImage?: string) => {
+    updateStatus.mutate({ id, status, resolution_image_url: resolutionImage });
   };
 
   if (role === "police") {

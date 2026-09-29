@@ -14,7 +14,15 @@ export type Report = {
   lng: number;
   area_name: string | null;
   status: ReportStatus;
+  resolution_image_url?: string | null;
   created_at: string;
+  ai_severity: string | null;
+  ai_urgency: string | null;
+  ai_category: string | null;
+  ai_incident_type: string | null;
+  ai_confidence: number | null;
+  ai_priority_score: number | null;
+  ai_reason: string | null;
 };
 
 export type Hospital = {
@@ -82,7 +90,7 @@ export async function fetchReports(): Promise<Report[]> {
     .order("created_at", { ascending: false })
     .limit(500);
   if (error) throw error;
-  return (data ?? []) as Report[];
+  return (data ?? []) as unknown as Report[];
 }
 
 export async function fetchHospitals(): Promise<Hospital[]> {
