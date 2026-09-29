@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   X,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/lib/app-context";
@@ -143,6 +144,17 @@ export function DashboardShell({
 
         {/* Bottom section */}
         <div className="border-t border-border p-3 space-y-1">
+          <Link
+            to="/ai"
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-md transition-all hover:from-emerald-600 hover:to-teal-700 hover:scale-[1.02]",
+              collapsed && "justify-center px-2",
+            )}
+            title={collapsed ? (lang === "bn" ? "এআই ইন্টেলিজেন্স" : "AI Intelligence") : undefined}
+          >
+            <Sparkles className="size-[18px] shrink-0" />
+            {!collapsed && <span>{lang === "bn" ? "এআই ইন্টেলিজেন্স" : "AI Intelligence"}</span>}
+          </Link>
           <button
             type="button"
             onClick={() => {

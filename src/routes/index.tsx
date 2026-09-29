@@ -42,7 +42,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { t } = useApp();
+  const { t, lang } = useApp();
 
   return (
     <div className="min-h-dvh bg-background selection:bg-primary/20">
@@ -51,16 +51,19 @@ function Landing() {
           <BrandMark />
           <div className="flex items-center gap-4 lg:gap-8">
             <nav className="hidden lg:flex gap-6 text-sm font-medium text-white/80 drop-shadow-md">
-              <a href="#how-it-works" className="hover:text-white transition-colors">
+              <Link to="/ai" className="hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 text-white bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 rounded-full shadow-lg border border-emerald-400/50">
+                <Sparkles className="size-4" /> {lang === "bn" ? "এআই ইন্টেলিজেন্স" : "AI Intelligence"}
+              </Link>
+              <a href="#how-it-works" className="flex items-center hover:text-white transition-colors">
                 {t("howItWorks")}
               </a>
-              <a href="#features" className="hover:text-white transition-colors">
+              <a href="#features" className="flex items-center hover:text-white transition-colors">
                 {t("features")}
               </a>
-              <a href="#stats" className="hover:text-white transition-colors">
+              <a href="#stats" className="flex items-center hover:text-white transition-colors">
                 {t("stats")}
               </a>
-              <a href="#help" className="hover:text-white transition-colors">
+              <a href="#help" className="flex items-center hover:text-white transition-colors">
                 {t("helpCenter")}
               </a>
             </nav>
@@ -103,9 +106,7 @@ function Landing() {
                   <span className="text-primary drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">{t("heroTitle3")}</span>
                 </h1>
                 <p className="mt-6 text-lg leading-relaxed text-white/90 font-medium max-w-xl mx-auto lg:mx-0 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-                  {t("heroDesc").split("\n")[0]}
-                  <br />
-                  {t("heroDesc").split("\n")[1]}
+                  Nirapod Dhaka doesn't just collect reports. It understands them. Using AI to prioritize risks, verify evidence, and route hazards to the right authorities instantly.
                 </p>
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                   <Link

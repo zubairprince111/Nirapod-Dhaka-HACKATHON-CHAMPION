@@ -162,6 +162,16 @@ function MapPage() {
 
         <div className="flex items-center gap-2 lg:gap-4">
           <div className="hidden lg:block">
+            <Link 
+              to="/ai"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-sm font-black text-white shadow-md hover:from-emerald-600 hover:to-teal-700 transition-all hover:scale-105 active:scale-95"
+            >
+              <Sparkles className="size-4" />
+              {lang === "bn" ? "এআই ইন্টেলিজেন্স" : "AI Intelligence"}
+            </Link>
+          </div>
+
+          <div className="hidden lg:block">
             <NotificationPanel />
           </div>
 

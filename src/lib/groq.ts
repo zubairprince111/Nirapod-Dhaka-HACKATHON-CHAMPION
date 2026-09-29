@@ -1,7 +1,7 @@
 import type { Report } from "@/lib/reports";
 import type { Profile, AppRole } from "@/lib/auth";
 
-export const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+export const DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b";
 
 export type ChatMessage = {
   id: string;

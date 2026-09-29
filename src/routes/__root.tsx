@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { AppProvider } from "@/lib/app-context";
@@ -125,15 +125,73 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 
+import { Server, X } from "lucide-react";
+
+function RenderNotice() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const hasSeen = sessionStorage.getItem("hasSeenRenderNotice");
+    if (!hasSeen) {
+      // Small delay so it pops up nicely after load
+      const timer = setTimeout(() => setShow(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const dismiss = () => {
+    setShow(false);
+    sessionStorage.setItem("hasSeenRenderNotice", "true");
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-300">
+        <button
+          onClick={dismiss}
+          className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        >
+          <X className="size-5" />
+        </button>
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Server className="size-6" />
+        </div>
+        <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
+          Backend is waking up!
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          This demo is hosted on Render's free tier. If there has been no activity for 15 minutes, the backend server goes to sleep.
+        </p>
+        <p className="mt-2 text-sm font-semibold text-foreground">
+          Please wait 30-50 seconds for the backend to start up before trying to log in or submit reports.
+        </p>
+        <div className="mt-6">
+          <button
+            onClick={dismiss}
+            className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-deep"
+          >
+            I understand, let's go
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const isMap = router.state.location.pathname === "/map";
 
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <AuthProvider>
           <Outlet />
-          <AiChatbot />
+          {isMap && <AiChatbot />}
+          <RenderNotice />
           <Toaster position="top-center" richColors closeButton />
         </AuthProvider>
       </AppProvider>
